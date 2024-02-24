@@ -90,7 +90,9 @@ void USART3_rxDataHandler(uint8_t *rxBuf)
 	// temp_remote[5] = ((int)ins_roll) & 0xff;
 	// temp_remote[6] = ((int)ins_pitch >> 8) & 0xff;
 	// temp_remote[7] = (int)ins_pitch & 0xff;
+
 	// 导航反馈的Vx, Vy
+	// 不乘100的原因是数值很大（三四位数那种），乘100会导致溢出int16_t，这样的话小数点精度显得不那么重要
 	temp_remote[4] = ((int16_t)vision_Vx >> 8) & 0xff;
 	temp_remote[5] = ((int16_t)vision_Vx) & 0xff;
 	temp_remote[6] = ((int16_t)vision_Vy >> 8) & 0xff;
