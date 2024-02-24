@@ -137,8 +137,9 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) // 接受中断�
     {
       rc_ctrl.rc.ch[4] = ((rx_data[0] | (rx_data[1] << 8)) & 0x07ff) - RC_CH_VALUE_OFFSET;
       INS_top.Yaw = ((int16_t)((rx_data[2] << 8) | rx_data[3])) / 100.0f; // yaw
-      // INS_top.Roll = ((int16_t)((rx_data[4] << 8) | rx_data[5])) / 100;  // roll（roll和pitch根据c放置位置不同可能交换）
-      // INS_top.Pitch = ((int16_t)((rx_data[6] << 8) | rx_data[7])) / 100; // pitch
+
+      // 发送那里不乘100的原因是数值很大（三四位数那种），乘100会导致溢出int16_t，这样的话小数点精度显得不那么重要
+      // 因此，接受处正常处理，也不用除
       vision_Vx = ((int16_t)((rx_data[4] << 8) | rx_data[5])); // 导航所需Vx
       vision_Vy = ((int16_t)((rx_data[6] << 8) | rx_data[7])); // 导航所需Vy
     }
