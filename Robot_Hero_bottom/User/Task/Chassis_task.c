@@ -15,7 +15,7 @@
 #define KEY_START_OFFSET 3
 #define KEY_STOP_OFFSET 20
 #define CHASSIS_SPEED_MAX 2000
-#define CHASSIS_TOP_SPEED 1000
+#define CHASSIS_TOP_SPEED 4000
 
 motor_info_t motor_can2[6]; // can2电机信息结构体, 0123：底盘，4：拨盘, 5: 云台
 chassis_t chassis[4];
@@ -68,7 +68,8 @@ void Chassis_task(void const *pvParameters)
     // 底盘跟随云台模式
     else
     {
-      chassis_mode_follow();
+      // chassis_mode_follow();
+      chassis_mode_vision(); // 导航
     }
 
     chassis_current_give();
@@ -235,6 +236,8 @@ void chassis_mode_follow()
   }
 
   relative_yaw = INS.yaw_update - INS_top.Yaw;
+  // uint8_t enter_flag = 1;
+  // if ()
   int16_t yaw_speed = pid_calc_a(&pid_yaw_angle, 0, relative_yaw);
   int16_t rotate_w = (motor_can2[0].rotor_speed + motor_can2[1].rotor_speed + motor_can2[2].rotor_speed + motor_can2[3].rotor_speed) / (4 * 19);
   // 消除静态旋转
@@ -253,23 +256,69 @@ void chassis_mode_follow()
   Vx = cos(relative_yaw) * Temp_Vx - sin(relative_yaw) * Temp_Vy;
   Vy = sin(relative_yaw) * Temp_Vx + cos(relative_yaw) * Temp_Vy;
 
+  // chassis[0].target_speed = Vy + Vx + 3 * (-Wz) * (rx + ry);
+  // chassis[1].target_speed = -Vy + Vx + 3 * (-Wz) * (rx + ry);
+  // chassis[2].target_speed = -Vy - Vx + 3 * (-Wz) * (rx + ry);
+  // chassis[3].target_speed = Vy - Vx + 3 * (-Wz) * (rx + ry);
+
+  chassis[0].target_speed = 0;
+  chassis[1].target_speed = 0;
+  chassis[2].target_speed = 0;
+  chassis[3].target_speed = 0;
+}
+
+/*************************** 视觉导航模式 ****************************/
+void chassis_mode_vision()
+{
+  // int16_t Temp_Vx = vision_Vx;
+  // int16_t Temp_Vy = vision_Vy;
+  // // Wz = mapping(rc_ctrl.rc.ch[4], -660, 660, -CHASSIS_SPEED_MAX, CHASSIS_SPEED_MAX); // rotate
+
+  // relative_yaw = INS.yaw_update - INS_top.Yaw;
+  // relative_yaw = -relative_yaw / 57.3f; // 此处加负是因为旋转角度后，旋转方向相反
+
+  // Vx = cos(relative_yaw) * Temp_Vx - sin(relative_yaw) * Temp_Vy;
+  // Vy = sin(relative_yaw) * Temp_Vx + cos(relative_yaw) * Temp_Vy;
+
+  Vx = vision_Vx;
+  Vy = vision_Vy;
+
   chassis[0].target_speed = Vy + Vx + 3 * (-Wz) * (rx + ry);
   chassis[1].target_speed = -Vy + Vx + 3 * (-Wz) * (rx + ry);
   chassis[2].target_speed = -Vy - Vx + 3 * (-Wz) * (rx + ry);
   chassis[3].target_speed = Vy - Vx + 3 * (-Wz) * (rx + ry);
-
-  // chassis[0].target_speed = 0;
-  // chassis[1].target_speed = 0;
-  // chassis[2].target_speed = 0;
-  // chassis[3].target_speed = 0;
 }
 
-/*************************** 视觉运动模式 ****************************/
-void chassis_mode_vision()
+/*************************** 键鼠控制模式 ****************************/
+void chassis_mode_keyboard()
 {
-  int16_t Temp_Vx = vision_Vx;
-  int16_t Temp_Vy = vision_Vy;
-  // Wz = mapping(rc_ctrl.rc.ch[4], -660, 660, -CHASSIS_SPEED_MAX, CHASSIS_SPEED_MAX); // rotate
+  // WSAD 控制平移运动
+  if (w_flag)
+    Vy += KEY_START_OFFSET;
+  else if (s_flag)
+    Vy -= KEY_STOP_OFFSET;
+  else
+    Vy = 0;
+
+  if (Vy > CHASSIS_SPEED_MAX)
+    Vy = CHASSIS_SPEED_MAX;
+  if (Vy < -CHASSIS_SPEED_MAX)
+    Vy = -CHASSIS_SPEED_MAX;
+
+  if (a_flag)
+    Vx -= KEY_STOP_OFFSET;
+  else if (d_flag)
+    Vx += KEY_START_OFFSET;
+  else
+    Vx = 0;
+
+  if (Vx > CHASSIS_SPEED_MAX)
+    Vx = CHASSIS_SPEED_MAX;
+  if (Vx < -CHASSIS_SPEED_MAX)
+    Vx = -CHASSIS_SPEED_MAX;
+
+  int16_t Temp_Vx = Vx;
+  int16_t Temp_Vy = Vy;
 
   relative_yaw = INS.yaw_update - INS_top.Yaw;
   relative_yaw = -relative_yaw / 57.3f; // 此处加负是因为旋转角度后，旋转方向相反

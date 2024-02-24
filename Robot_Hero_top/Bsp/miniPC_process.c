@@ -17,11 +17,14 @@ static Vision_Instance *vision_instance; // 用于和视觉通信的串口实例
 static void RecvProcess(Vision_Recv_s *recv, uint8_t *rx_buff)
 {
     /* 使用memcpy接收浮点型小数 */
-    memcpy(&recv->yaw, &rx_buff[1], 4);
-    memcpy(&recv->pitch, &rx_buff[5], 4);
+    // memcpy(&recv->yaw, &rx_buff[1], 4);
+    // memcpy(&recv->pitch, &rx_buff[5], 4);
+    // 导航使用
+    memcpy(&recv->Vx, &rx_buff[11], 4);
+    memcpy(&recv->Vy, &rx_buff[15], 4);
 
     /* 接收校验位 */
-    memcpy(&recv->checksum, &rx_buff[9], 2);
+    memcpy(&recv->checksum, &rx_buff[19], 2);
 }
 
 /**
@@ -37,6 +40,8 @@ static void DecodeVision(void)
 
         vision_yaw = vision_instance->recv_data->yaw;
         vision_pitch = vision_instance->recv_data->pitch;
+        vision_Vx = vision_instance->recv_data->Vx;
+        vision_Vy = vision_instance->recv_data->Vy;
     }
     else
     {

@@ -69,11 +69,11 @@ void USART3_rxDataHandler(uint8_t *rxBuf)
 	}
 	can_remote(temp_remote, 0x33);
 
-	for (int i = 8; i <= 15; i++)
-	{
-		temp_remote[i - 8] = rxBuf[i]; // volatile const uint8_t和uint8_t不一样不能直接带入can_remote这个函数
-	}
-	can_remote(temp_remote, 0x34);
+	// for (int i = 8; i <= 15; i++)
+	// {
+	// 	temp_remote[i - 8] = rxBuf[i]; // volatile const uint8_t和uint8_t不一样不能直接带入can_remote这个函数
+	// }
+	// can_remote(temp_remote, 0x34);
 
 	temp_remote[0] = rxBuf[16];
 	temp_remote[1] = rxBuf[17];
@@ -81,20 +81,20 @@ void USART3_rxDataHandler(uint8_t *rxBuf)
 	yaw = 100 * ins_yaw_update; // 使之接收带上小数点
 	// ins_roll = 100 * INS.Roll;
 	// ins_pitch = 100 * INS.Pitch;
-	vision_Vx1 = 100 * vision_Vx; // 使之接收带上小数点
-	vision_Vy1 = 100 * vision_Vy; // 使之接收带上小数点
+	// vision_Vx1 = 100 * vision_Vx; // 使之接收带上小数点
+	// vision_Vy1 = 100 * vision_Vy; // 使之接收带上小数点
 
-	temp_remote[2] = ((int)yaw >> 8) & 0xff;
-	temp_remote[3] = (int)yaw & 0xff;
+	temp_remote[2] = ((int16_t)yaw >> 8) & 0xff;
+	temp_remote[3] = (int16_t)yaw & 0xff;
 	// temp_remote[4] = ((int)ins_roll >> 8) & 0xff;
 	// temp_remote[5] = ((int)ins_roll) & 0xff;
 	// temp_remote[6] = ((int)ins_pitch >> 8) & 0xff;
 	// temp_remote[7] = (int)ins_pitch & 0xff;
 	// 导航反馈的Vx, Vy
-	temp_remote[4] = ((int)vision_Vx1 >> 8) & 0xff;
-	temp_remote[5] = ((int)vision_Vx1) & 0xff;
-	temp_remote[6] = ((int)vision_Vy1 >> 8) & 0xff;
-	temp_remote[7] = (int)vision_Vy1 & 0xff;
+	temp_remote[4] = ((int16_t)vision_Vx >> 8) & 0xff;
+	temp_remote[5] = ((int16_t)vision_Vx) & 0xff;
+	temp_remote[6] = ((int16_t)vision_Vy >> 8) & 0xff;
+	temp_remote[7] = ((int16_t)vision_Vy) & 0xff;
 
 	can_remote(temp_remote, 0x35);
 

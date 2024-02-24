@@ -206,17 +206,17 @@ void gimbal_control()
 
 	if (gimbal_mode == 1)
 	{
-		// 锁yaw模式
-		if (rc_ctrl.rc.s[1] == 1 || rc_ctrl.rc.s[1] == 3) // 左拨杆上或中
-		{
-			gimbal_mode_normal();
-		}
+		// // 锁yaw模式
+		// if (rc_ctrl.rc.s[1] == 1 || rc_ctrl.rc.s[1] == 3) // 左拨杆上或中
+		// {
+		// 	gimbal_mode_normal();
+		// }
 
-		// 视觉控制
-		else if (rc_ctrl.rc.s[1] == 2) // 左拨杆下
-		{
-			gimbal_mode_vision();
-		}
+		// // 视觉控制
+		// else if (rc_ctrl.rc.s[1] == 2) // 左拨杆下
+		// {
+		// 	gimbal_mode_vision();
+		// }
 	}
 }
 

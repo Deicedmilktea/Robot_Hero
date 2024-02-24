@@ -29,8 +29,8 @@ void exchange_task(void const *argument)
     vision_recv_data = VisionInit(&config);
 
     while (1) {
-        VisionSetAltitude(INS.Yaw, INS.Pitch, INS.Roll);
-        VisionSend();
+        // VisionSetAltitude(INS.Yaw, INS.Pitch, INS.Roll);
+        // VisionSend();
 
         osDelay(1);
     }
