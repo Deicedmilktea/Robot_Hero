@@ -1,5 +1,6 @@
 #include "miniPC_process.h"
 #include "string.h"
+#include "stdlib.h"
 
 float vision_yaw = 0;
 float vision_pitch = 0;
