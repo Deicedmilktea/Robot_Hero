@@ -9,7 +9,7 @@
 #include "rc_potocal.h"
 #include "ins_task.h"
 
-extern motor_info_t motor_can2[4];
+extern motor_info_t motor_can2[5];
 extern RC_ctrl_t rc_ctrl;
 pitch_t pitch;
 float relative_pitch = 0;

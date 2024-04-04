@@ -35,7 +35,7 @@ float imu_err_yaw = 0; // 记录yaw飘移的数值便于进行校正
 
 extern RC_ctrl_t rc_ctrl;
 extern INS_t INS;
-extern motor_info_t motor_can2[4];
+extern motor_info_t motor_can2[5];
 extern bool vision_is_tracking;
 extern float vision_yaw;
 
