@@ -133,7 +133,7 @@ void Chassis_task(void const *pvParameters)
     // 等级判断，获取最大速度
     level_judge();
     // 校正yaw值
-    // yaw_correct();
+    yaw_correct();
     // 底盘模式读取
     read_keyboard();
     // // 判断是否开启超电
@@ -162,6 +162,7 @@ void Chassis_task(void const *pvParameters)
     else if (rc_ctrl.rc.s[0] == 2)
     {
       chassis_mode_follow();
+      // chassis_mode_normal();
     }
 
     else
@@ -187,7 +188,7 @@ static void Chassis_loop_Init()
 
   for (uint8_t i = 0; i < 4; i++)
   {
-    pid_init(&chassis[i].pid, chassis[i].pid_value, 12000, 12000);
+    pid_init(&chassis[i].pid, chassis[i].pid_value, 20000, 20000);
   }
 
   Vx = 0;
@@ -230,10 +231,15 @@ static void chassis_mode_normal()
   Vx = cos(relative_yaw) * Temp_Vx - sin(relative_yaw) * Temp_Vy;
   Vy = sin(relative_yaw) * Temp_Vx + cos(relative_yaw) * Temp_Vy;
 
-  chassis[0].target_speed = Vy + Vx + 3 * (-Wz) * (rx + ry);
-  chassis[1].target_speed = -Vy + Vx + 3 * (-Wz) * (rx + ry);
-  chassis[2].target_speed = -Vy - Vx + 3 * (-Wz) * (rx + ry);
-  chassis[3].target_speed = Vy - Vx + 3 * (-Wz) * (rx + ry);
+  // chassis[0].target_speed = Vy + Vx + 3 * (-Wz) * (rx + ry);
+  // chassis[1].target_speed = -Vy + Vx + 3 * (-Wz) * (rx + ry);
+  // chassis[2].target_speed = -Vy - Vx + 3 * (-Wz) * (rx + ry);
+  // chassis[3].target_speed = Vy - Vx + 3 * (-Wz) * (rx + ry);
+
+  chassis[0].target_speed = 0;
+  chassis[1].target_speed = 0;
+  chassis[2].target_speed = 0;
+  chassis[3].target_speed = 0;
 
   cycle = 1; // 记录的模式状态的变量，以便切换到 follow 模式的时候，可以知道分辨已经切换模式，计算一次 yaw 的差值
 }
