@@ -153,8 +153,8 @@ int main(void)
   USART3_Init();
   HAL_TIM_Base_Start_IT(&htim1);
   HAL_TIM_Base_Start_IT(&htim6); // 测试发弹速度
-  // 开启USART1接收中断
-  HAL_UART_Receive_IT(&huart1, (uint8_t *)rx_buffer, sizeof(rx_buffer));
+  // // 开启USART1接收中断
+  // HAL_UART_Receive_IT(&huart1, (uint8_t *)rx_buffer, sizeof(rx_buffer));
   DWT_Init(168);
   while (BMI088_init(&hspi1, 1) != BMI088_NO_ERROR)
     ;

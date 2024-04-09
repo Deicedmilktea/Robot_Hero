@@ -71,7 +71,7 @@ float data[6];
 float vi, vo, pi, ii, io, ps;
 
 // 读取键鼠数据控制底盘模式
-static void read_keyboard(void);
+static void read_keyboard();
 
 // 参数重置
 static void Chassis_loop_Init();
@@ -95,7 +95,7 @@ static void yaw_correct();
 static void manual_yaw_correct();
 
 // 电机电流控制
-static void chassis_current_give(void);
+static void chassis_current_give();
 
 // chassis CAN2发送信号
 static void chassis_can2_cmd(int16_t v1, int16_t v2, int16_t v3, int16_t v4);
@@ -133,37 +133,14 @@ void Chassis_task(void const *pvParameters)
     // 等级判断，获取最大速度
     level_judge();
     // 校正yaw值
-    yaw_correct();
+    // yaw_correct();
     // 底盘模式读取
     read_keyboard();
     // // 判断是否开启超电
     // supercap_judge();
 
-    // 遥控操作
-    if (rc_ctrl.rc.ch[0] != 0 || rc_ctrl.rc.ch[1] != 0 || rc_ctrl.rc.ch[2] != 0 || rc_ctrl.rc.ch[3] != 0)
-    {
-      // 底盘跟随云台模式，右拨杆拨到中
-      if (rc_ctrl.rc.s[0] == 3)
-      {
-        key_control();
-        chassis_mode_follow();
-      }
-
-      // 正常运动模式，右拨杆拨到下
-      else if (rc_ctrl.rc.s[0] == 2)
-      {
-        key_control();
-        chassis_mode_normal();
-      }
-
-      else
-      {
-        key_control();
-        chassis_mode_normal();
-      }
-    }
-    // 键鼠操作
-    else
+    // 右拨杆中，键鼠操作
+    if (rc_ctrl.rc.s[0] == 3)
     {
       // 底盘跟随云台模式，r键触发
       if (chassis_mode == 1)
@@ -179,12 +156,18 @@ void Chassis_task(void const *pvParameters)
         manual_yaw_correct(); // 手动校正yaw值，头对正，按下V键
         chassis_mode_normal();
       }
+    }
 
-      else
-      {
-        key_control();
-        chassis_mode_normal();
-      }
+    // 右拨杆下，遥控操作
+    else if (rc_ctrl.rc.s[0] == 2)
+    {
+      chassis_mode_follow();
+    }
+
+    else
+    {
+      key_control();
+      chassis_mode_normal();
     }
 
     chassis_current_give();

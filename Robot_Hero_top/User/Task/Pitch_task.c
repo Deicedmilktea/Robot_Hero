@@ -140,11 +140,11 @@ static void pitch_current_give()
 /***************判断pitch位置******************/
 static void pitch_position_limit()
 {
-    if (relative_pitch > 20 && pitch.target_speed < 0) // pitch.target_speed正负与3508旋转方向有关
+    if (relative_pitch > 40 && pitch.target_speed < 0) // pitch.target_speed正负与3508旋转方向有关
     {
         pitch.target_speed = 0;
     }
-    if (relative_pitch < -15 && pitch.target_speed > 0)
+    if (relative_pitch < 0 && pitch.target_speed > 0)
     {
         pitch.target_speed = 0;
     }

@@ -49,27 +49,61 @@ void Shoot_task(void const *argument)
 
   for (;;)
   {
-    // 遥控器左边拨到上，电机启动
-    if (rc_ctrl.rc.s[1] == 1)
+    // // 遥控器左边拨到上，电机启动
+    // if (rc_ctrl.rc.s[1] == 1)
+    // {
+    //   is_angle_control = false;
+    //   shoot_start();
+    // }
+    // // // 单发，鼠标控制
+    // // else if (press_left)
+    // // {
+    // //   is_angle_control = true;
+    // //   trigger_single_angle_move();
+    // // }
+    // // else if (z_flag)
+    // // {
+    // //   is_angle_control = false;
+    // //   shoot_reverse();
+    // // }
+    // else
+    // {
+    //   shoot_stop();
+    // }
+
+    // 右拨杆中，键鼠控制
+    if (rc_ctrl.rc.s[0] == 3)
     {
-      is_angle_control = false;
-      shoot_start();
+      // 单发，鼠标控制
+      if (press_left)
+      {
+        is_angle_control = true;
+        trigger_single_angle_move();
+      }
+      else if (z_flag)
+      {
+        is_angle_control = false;
+        shoot_reverse();
+      }
     }
-    // 单发，鼠标控制
-    else if (press_left)
+
+    // 右拨杆下，遥控器控制
+    else if (rc_ctrl.rc.s[0] == 2)
     {
-      is_angle_control = true;
-      trigger_single_angle_move();
+      // 左拨杆上，电机启动
+      if (rc_ctrl.rc.s[1] == 1)
+      {
+        is_angle_control = false;
+        shoot_start();
+      }
+      else
+      {
+        shoot_stop();
+      }
     }
-    else if (z_flag)
-    {
-      is_angle_control = false;
-      shoot_reverse();
-    }
+
     else
-    {
       shoot_stop();
-    }
 
     shoot_current_give();
     osDelay(1);
@@ -84,8 +118,8 @@ static void shoot_loop_init()
   // trigger.pid_value[1] = 1;
   // trigger.pid_value[2] = 0.05;
 
-  trigger.pid_speed_value[0] = 200;
-  trigger.pid_speed_value[1] = 0;
+  trigger.pid_speed_value[0] = 20;
+  trigger.pid_speed_value[1] = 0.1;
   trigger.pid_speed_value[2] = 0;
 
   trigger.pid_angle_value[0] = 2;
@@ -97,8 +131,8 @@ static void shoot_loop_init()
   trigger.target_angle = motor_can2[4].total_angle;
 
   // 初始化PID
-  pid_init(&trigger.pid_speed, trigger.pid_speed_value, 8000, 8000); // trigger_speed
-  pid_init(&trigger.pid_angle, trigger.pid_angle_value, 8000, 8000); // trigger_angle
+  pid_init(&trigger.pid_speed, trigger.pid_speed_value, 10000, 30000); // trigger_speed
+  pid_init(&trigger.pid_angle, trigger.pid_angle_value, 10000, 30000); // trigger_angle
 }
 
 /***************射击模式*****************/
@@ -165,5 +199,5 @@ static void shoot_current_give()
   else
     motor_can2[4].set_current = pid_calc(&trigger.pid_speed, trigger.target_speed, motor_can2[4].rotor_speed);
 
-  // trigger_can2_cmd(motor_can2[4].set_current);
+  trigger_can2_cmd(motor_can2[4].set_current);
 }

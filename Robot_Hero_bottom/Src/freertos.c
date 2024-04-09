@@ -53,8 +53,6 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
-// osThreadId Chassis_taskHandle;
-osThreadId myTask02Handle;
 osThreadId SupercapTaskHandle;
 osThreadId UITaskHandle;
 /* USER CODE END Variables */
@@ -139,11 +137,11 @@ void MX_FREERTOS_Init(void)
   INSTaskHandle = osThreadCreate(osThread(INSTask), NULL);
 
   /* definition and creation of ChassisTask */
-  osThreadDef(ChassisTask, Chassis_task, osPriorityHigh, 0, 256);
+  osThreadDef(ChassisTask, Chassis_task, osPriorityNormal, 0, 256);
   ChassisTaskHandle = osThreadCreate(osThread(ChassisTask), NULL);
 
   /* definition and creation of ShootTask */
-  osThreadDef(ShootTask, Shoot_task, osPriorityHigh, 0, 128);
+  osThreadDef(ShootTask, Shoot_task, osPriorityNormal, 0, 128);
   ShootTaskHandle = osThreadCreate(osThread(ShootTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
