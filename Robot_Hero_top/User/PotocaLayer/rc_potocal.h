@@ -4,7 +4,7 @@
 #include "drv_can.h"
 #include "main.h"
 
-void USART3_rxDataHandler(uint8_t *rxBuf);
+// void USART3_rxDataHandler(uint8_t *rxBuf);
 
 typedef struct
 {

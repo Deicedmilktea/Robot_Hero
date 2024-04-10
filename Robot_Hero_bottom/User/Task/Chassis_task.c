@@ -348,7 +348,11 @@ static void chassis_current_give()
     chassis[i].target_speed = Motor_Speed_limiting(chassis[i].target_speed, chassis_speed_max);
     motor_can2[i].set_current = pid_calc(&chassis[i].pid, chassis[i].target_speed, motor_can2[i].rotor_speed);
   }
-  Chassis_Power_Limit(4 * chassis_speed_max);
+
+  // 在静止状态下锁死底盘，因为如果走功率限制，底盘很软(T_T)
+  if (chassis[0].target_speed != 0 || chassis[1].target_speed != 0 || chassis[2].target_speed != 0 || chassis[3].target_speed != 0)
+    Chassis_Power_Limit(4 * chassis_speed_max);
+
   chassis_can2_cmd(motor_can2[0].set_current, motor_can2[1].set_current, motor_can2[2].set_current, motor_can2[3].set_current);
 }
 
@@ -474,6 +478,8 @@ static void Chassis_Power_Limit(double Chassis_pidout_target_limit)
     // {
     //   Plimit = 1;
     // }
+
+    /*缓冲能量占比环，总体约束*/
     if (!supercap_flag)
     {
       if (powerdata[1] < 24 && powerdata[1] > 23)
@@ -498,6 +504,8 @@ static void Chassis_Power_Limit(double Chassis_pidout_target_limit)
       // else if (powerdata[1] < 16 && powerdata[1] > 12)
       //   Plimit = 0.5;
     }
+
+    // Plimit = 1;
 
     motor_can2[0].set_current = Scaling1 * (Chassis_pidout_max * Klimit) * Plimit; // 输出值
     motor_can2[1].set_current = Scaling2 * (Chassis_pidout_max * Klimit) * Plimit;
