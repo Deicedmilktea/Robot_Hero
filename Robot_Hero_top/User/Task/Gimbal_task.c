@@ -116,6 +116,15 @@ static void Gimbal_loop_init()
 	// gimbal_gyro.pid_speed_value[1] = 0;
 	// gimbal_gyro.pid_speed_value[2] = 800;
 
+	// 视觉使用版本，防止yaw抖动过大
+	gimbal_gyro.pid_angle_vision_value[0] = 150;
+	gimbal_gyro.pid_angle_vision_value[1] = 0.01;
+	gimbal_gyro.pid_angle_vision_value[2] = 800;
+
+	gimbal_gyro.pid_speed_vision_value[0] = 10;
+	gimbal_gyro.pid_speed_vision_value[1] = 0;
+	gimbal_gyro.pid_speed_vision_value[2] = 0;
+
 	gimbal_encoder.target_angle = 0;
 	gimbal_gyro.target_angle = 0;
 
@@ -128,33 +137,21 @@ static void Gimbal_loop_init()
 	pid_init(&gimbal_encoder.pid_speed, gimbal_encoder.pid_speed_value, 100, 3000);
 	pid_init(&gimbal_gyro.pid_angle, gimbal_gyro.pid_angle_value, 30000, 30000);
 	pid_init(&gimbal_gyro.pid_speed, gimbal_gyro.pid_speed_value, 30000, 30000);
+	pid_init(&gimbal_gyro.pid_angle_vision, gimbal_gyro.pid_angle_vision_value, 30000, 30000);
+	pid_init(&gimbal_gyro.pid_speed_vision, gimbal_gyro.pid_speed_vision_value, 30000, 30000);
 }
 
 /************************************ 角度过零处理 ********************************/
 static void angle_over_zero(float err)
 {
-	if (gimbal_mode == 0)
-	{
-		if (err > 4096) // 4096 ：半圈机械角度
-		{
-			gimbal_encoder.target_angle -= 8191;
-		}
-		else if (err < -4096)
-		{
-			gimbal_encoder.target_angle += 8191;
-		}
-	}
 
-	if (gimbal_mode == 1)
+	if (err > 180) // 180 ：半圈机械角度
 	{
-		if (err > 180) // 180 ：半圈机械角度
-		{
-			gimbal_gyro.target_angle -= 360;
-		}
-		else if (err < -180)
-		{
-			gimbal_gyro.target_angle += 360;
-		}
+		gimbal_gyro.target_angle -= 360;
+	}
+	else if (err < -180)
+	{
+		gimbal_gyro.target_angle += 360;
 	}
 }
 
@@ -183,31 +180,16 @@ static void Yaw_read_imu()
 /***************************** 处理接收遥控器数据控制云台旋转 *********************************/
 static void gimbal_control()
 {
-	if (gimbal_mode == 0)
+	// 视觉控制
+	if (rc_ctrl.rc.s[0] == 1 || press_right == 1) // 左拨杆上 || 按住右键
 	{
-		gimbal_encoder.target_angle += 0.02 * rc_ctrl.rc.ch[2];
-		detel_calc(&gimbal_encoder.target_angle);
-		err_yaw_angle = gimbal_gyro.target_angle - motor_can2[3].rotor_angle;
-		angle_over_zero(err_yaw_angle);
-		gimbal_encoder.pid_angle_out = pid_calc(&gimbal_encoder.pid_angle, gimbal_encoder.target_angle, motor_can2[3].rotor_angle);	 // 计算出云台角度
-		gimbal_encoder.pid_speed_out = pid_calc(&gimbal_encoder.pid_speed, gimbal_encoder.pid_angle_out, motor_can2[3].rotor_speed); // 计算出云台速度
-
-		gimbal_can2_cmd(gimbal_encoder.pid_speed_out); // 给电流
+		gimbal_mode_vision();
 	}
 
-	if (gimbal_mode == 1)
+	// 锁yaw模式
+	else // 左拨杆中或下
 	{
-		// 视觉控制
-		if (rc_ctrl.rc.s[0] == 1 || press_right == 1) // 左拨杆上 || 按住右键
-		{
-			gimbal_mode_vision();
-		}
-
-		// 锁yaw模式
-		else // 左拨杆中或下
-		{
-			gimbal_mode_normal();
-		}
+		gimbal_mode_normal();
 	}
 }
 
@@ -221,7 +203,7 @@ static void gimbal_mode_vision()
 	if (vision_is_tracking)
 	{
 		// 视觉模式中加入手动微调
-		float normalized_input = (rc_ctrl.rc.ch[2] / 660.0f + rc_ctrl.mouse.x / 16384.0f) * 10; // 最大微调角度限制为5°
+		float normalized_input = (rc_ctrl.rc.ch[2] / 660.0f + rc_ctrl.mouse.x / 16384.0f) * 10; // 最大微调角度限制为10°
 		gimbal_gyro.target_angle = vision_yaw - normalized_input;
 	}
 
@@ -235,10 +217,10 @@ static void gimbal_mode_vision()
 	detel_calc(&gimbal_gyro.target_angle);
 
 	// 云台角度输出
-	gimbal_gyro.pid_angle_out = pid_calc_a(&gimbal_gyro.pid_angle, gimbal_gyro.target_angle, INS.yaw_update);
+	gimbal_gyro.pid_angle_out = pid_calc_a(&gimbal_gyro.pid_angle_vision, gimbal_gyro.target_angle, INS.yaw_update);
 
 	// 云台速度输出
-	gimbal_gyro.pid_speed_out = pid_calc(&gimbal_gyro.pid_speed, gimbal_gyro.pid_angle_out, INS.Gyro[2] * 57.3f);
+	gimbal_gyro.pid_speed_out = pid_calc(&gimbal_gyro.pid_speed_vision, gimbal_gyro.pid_angle_out, INS.Gyro[2] * 57.3f);
 
 	// 给电流
 	gimbal_can2_cmd(gimbal_gyro.pid_speed_out); // 给电流

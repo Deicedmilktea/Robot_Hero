@@ -45,33 +45,36 @@ void Shoot_task(void const *argument)
     // // 读取键鼠是否开启摩擦轮
     // read_keyboard();
 
-    // 右拨杆中，键鼠控制
-    if (rc_ctrl.rc.s[0] == 3)
+    // // 右拨杆中，键鼠控制
+    // if (rc_ctrl.rc.s[0] == 3)
+    // {
+    //   shoot_start();
+    // }
+
+    // // 右拨杆下，遥控器控制
+    // else if (rc_ctrl.rc.s[0] == 2)
+    // {
+    //   // 遥控器左边拨到上和中，电机启动
+    //   if (rc_ctrl.rc.s[1] == 1 || rc_ctrl.rc.s[1] == 3)
+    //   {
+    //     shoot_start();
+    //   }
+    //   else
+    //   {
+    //     shoot_stop();
+    //   }
+    // }
+
+    // 表演模式
+    // 遥控器左边拨到上和中，电机启动
+    if (rc_ctrl.rc.s[1] == 1 || rc_ctrl.rc.s[1] == 3)
     {
       shoot_start();
     }
-
-    // 右拨杆下，遥控器控制
-    else if (rc_ctrl.rc.s[0] == 2)
+    else
     {
-      // 遥控器左边拨到上和中，电机启动
-      if (rc_ctrl.rc.s[1] == 1 || rc_ctrl.rc.s[1] == 3)
-      {
-        shoot_start();
-      }
-      else
-      {
-        shoot_stop();
-      }
+      shoot_stop();
     }
-
-    // //遥控器左边拨到下，弹仓盖打开
-    // if(rc_ctrl.rc.s[1] == 2){
-    //   shoot_lid_open();
-    // }
-    // else{
-    //   shoot_lid_close();
-    // }
 
     shoot_current_give();
     osDelay(1);

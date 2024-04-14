@@ -65,7 +65,6 @@ osThreadId ShootTaskHandle;
 void Supercap_task(void const *argument);
 void UI_task(void const *argument);
 /* USER CODE END FunctionPrototypes */
-
 void StartINSTask(void const *argument);
 void Chassis_task(void const *argument);
 void Shoot_task(void const *argument);

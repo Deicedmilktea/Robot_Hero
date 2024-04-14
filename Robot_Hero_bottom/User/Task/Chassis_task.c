@@ -88,6 +88,9 @@ static void chassis_mode_follow();
 // 视觉运动模式
 static void chassis_mode_vision();
 
+// 停止模式
+static void chassis_mode_stop();
+
 // yaw值校正
 static void yaw_correct();
 
@@ -170,6 +173,18 @@ void Chassis_task(void const *pvParameters)
       key_control();
       chassis_mode_normal();
     }
+
+    // // 表演模式
+    // if (rc_ctrl.rc.s[0] == 3)
+    // {
+    //   chassis_mode_top();
+    // }
+    // else if (rc_ctrl.rc.s[0] == 2)
+    // {
+    //   chassis_mode_follow();
+    // }
+    // else
+    //   chassis_mode_stop();
 
     chassis_current_give();
     // datapy(); // 超电数据接收
@@ -338,6 +353,15 @@ static void chassis_mode_vision()
   chassis[3].target_speed = Vy - Vx + 3 * (-Wz) * (rx + ry);
 }
 
+/*************************** 停止模式 ****************************/
+static void chassis_mode_stop()
+{
+  chassis[0].target_speed = 0;
+  chassis[1].target_speed = 0;
+  chassis[2].target_speed = 0;
+  chassis[3].target_speed = 0;
+}
+
 /*************************** 电机电流控制 ****************************/
 static void chassis_current_give()
 {
@@ -389,7 +413,7 @@ static void yaw_correct()
   }
   // Wz为负，顺时针旋转，陀螺仪飘 60°/min（以3000为例转出的，根据速度不同调整）
   // 解决yaw偏移，完成校正
-  if (shift_flag || ctrl_flag)
+  if (shift_flag || ctrl_flag || rc_ctrl.rc.s[0] == 3)
   {
     if (Wz > 500)
       imu_err_yaw -= 0.001f;

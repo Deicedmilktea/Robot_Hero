@@ -88,7 +88,8 @@ void Shoot_task(void const *argument)
     }
 
     // 右拨杆下，遥控器控制
-    else if (rc_ctrl.rc.s[0] == 2)
+    else
+    // else if (rc_ctrl.rc.s[0] == 2)
     {
       // 左拨杆上，电机启动
       if (rc_ctrl.rc.s[1] == 1)
@@ -102,8 +103,8 @@ void Shoot_task(void const *argument)
       }
     }
 
-    else
-      shoot_stop();
+    // else
+    //   shoot_stop();
 
     shoot_current_give();
     osDelay(1);
@@ -118,8 +119,8 @@ static void shoot_loop_init()
   // trigger.pid_value[1] = 1;
   // trigger.pid_value[2] = 0.05;
 
-  trigger.pid_speed_value[0] = 20;
-  trigger.pid_speed_value[1] = 0.1;
+  trigger.pid_speed_value[0] = 30;
+  trigger.pid_speed_value[1] = 0.09;
   trigger.pid_speed_value[2] = 0;
 
   trigger.pid_angle_value[0] = 2;
@@ -131,14 +132,14 @@ static void shoot_loop_init()
   trigger.target_angle = motor_can2[4].total_angle;
 
   // 初始化PID
-  pid_init(&trigger.pid_speed, trigger.pid_speed_value, 10000, 30000); // trigger_speed
-  pid_init(&trigger.pid_angle, trigger.pid_angle_value, 10000, 30000); // trigger_angle
+  pid_init(&trigger.pid_speed, trigger.pid_speed_value, 20000, 30000); // trigger_speed
+  pid_init(&trigger.pid_angle, trigger.pid_angle_value, 20000, 30000); // trigger_angle
 }
 
 /***************射击模式*****************/
 static void shoot_start()
 {
-  trigger.target_speed = -250;
+  trigger.target_speed = -150;
 }
 
 /*************拨盘旋转固定角度***********/

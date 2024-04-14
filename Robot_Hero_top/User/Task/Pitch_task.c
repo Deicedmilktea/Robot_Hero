@@ -40,16 +40,17 @@ void Pitch_task(void const *argument)
         if (rc_ctrl.rc.s[0] == 1 || press_right == 1)
         {
             // 视觉模式下的遥控器微调
-            pitch.vision_remote_pitch += (rc_ctrl.rc.ch[3] / 660.0f - rc_ctrl.mouse.y / 16384.0f * 50) * 0.1f;
+            pitch.vision_remote_pitch = (rc_ctrl.rc.ch[3] / 660.0f - rc_ctrl.mouse.y / 16384.0f) * 10.0f;
             pitch.vision_target_pitch = pitch.vision_remote_pitch + vision_pitch;
+            // pitch.vision_target_pitch = vision_pitch;
 
-            if (pitch.vision_target_pitch > 20)
+            if (pitch.vision_target_pitch > 40)
             {
-                pitch.vision_target_pitch = 20;
+                pitch.vision_target_pitch = 40;
             }
-            if (pitch.vision_target_pitch < -15)
+            if (pitch.vision_target_pitch < 0)
             {
-                pitch.vision_target_pitch = -15;
+                pitch.vision_target_pitch = 0;
             }
 
             pitch.target_speed = -pid_calc(&pitch.vision_pid_angle, pitch.vision_target_pitch, INS.Roll);
@@ -124,7 +125,7 @@ static void pitch_can2_cmd(int16_t v3)
 /****************PID计算速度并发送电流***************/
 static void pitch_current_give()
 {
-    if (rc_ctrl.rc.s[1] == 2)
+    if (rc_ctrl.rc.s[0] == 1)
     {
         motor_can2[2].set_current = pid_calc(&pitch.vision_pid_speed, pitch.target_speed, motor_can2[2].rotor_speed);
     }
