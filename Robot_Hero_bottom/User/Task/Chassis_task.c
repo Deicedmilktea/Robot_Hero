@@ -334,26 +334,7 @@ static void chassis_mode_follow()
   chassis[3].target_speed = Vy - Vx + 3 * (-Wz) * (rx + ry);
 }
 
-/*************************** 视觉运动模式 ****************************/
-static void chassis_mode_vision()
-{
-  // int16_t Temp_Vx = vision_Vx;
-  // int16_t Temp_Vy = vision_Vy;
-  // Wz = mapping(rc_ctrl.rc.ch[4], -660, 660, -chassis_speed_max, chassis_speed_max); // rotate
-
-  relative_yaw = INS.yaw_update - INS_top.Yaw;
-  relative_yaw = -relative_yaw / 57.3f; // 此处加负是因为旋转角度后，旋转方向相反
-
-  // Vx = cos(relative_yaw) * Temp_Vx - sin(relative_yaw) * Temp_Vy;
-  // Vy = sin(relative_yaw) * Temp_Vx + cos(relative_yaw) * Temp_Vy;
-
-  chassis[0].target_speed = Vy + Vx + 3 * (-Wz) * (rx + ry);
-  chassis[1].target_speed = -Vy + Vx + 3 * (-Wz) * (rx + ry);
-  chassis[2].target_speed = -Vy - Vx + 3 * (-Wz) * (rx + ry);
-  chassis[3].target_speed = Vy - Vx + 3 * (-Wz) * (rx + ry);
-}
-
-/*************************** 停止模式 ****************************/
+/*************************** 急停模式 ****************************/
 static void chassis_mode_stop()
 {
   chassis[0].target_speed = 0;

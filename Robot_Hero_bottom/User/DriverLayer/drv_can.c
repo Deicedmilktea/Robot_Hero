@@ -119,9 +119,8 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) // 接受中断�
     if (rx_header.StdId == 0x35)
     {
       rc_ctrl.rc.ch[4] = ((rx_data[0] | (rx_data[1] << 8)) & 0x07ff) - RC_CH_VALUE_OFFSET;
-      INS_top.Yaw = ((int16_t)((rx_data[2] << 8) | rx_data[3])) / 100.0f; // yaw
-      // INS_top.Roll = ((int16_t)((rx_data[4] << 8) | rx_data[5])) / 100;  // roll（roll和pitch根据c放置位置不同可能交换）
-      // INS_top.Pitch = ((int16_t)((rx_data[6] << 8) | rx_data[7])) / 100; // pitch
+      INS_top.Yaw = ((int16_t)((rx_data[2] << 8) | rx_data[3])) / 100.0f;   // yaw
+      INS_top.Pitch = ((int16_t)((rx_data[4] << 8) | rx_data[5])) / 100.0f; // pitch
       // vision_Vx = ((int16_t)((rx_data[4] << 8) | rx_data[5])) / 100; // 导航所需Vx
       // vision_Vy = ((int16_t)((rx_data[6] << 8) | rx_data[7])) / 100; // 导航所需Vy
     }

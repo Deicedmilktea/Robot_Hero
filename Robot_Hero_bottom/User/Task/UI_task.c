@@ -15,7 +15,7 @@ uint8_t referee_uart_tx_buf[2][150]; // 裁判系统学生串口发送DMA缓冲�
 uint8_t referee_tx_fifo = 0;         // 正在使用的缓存池
 
 extern float powerdata[4];
-
+extern INS_t INS_top;
 extern JUDGE_MODULE_DATA Judge_Hero;
 extern UART_HandleTypeDef huart6;
 static uint8_t usart6_tx_dma_is_busy = 0;
@@ -58,6 +58,8 @@ void userUI_draw_foresight_5(int16_t delta_x, int16_t delta_y, fp32 scale);
 void userUI_draw_foresight_6(int16_t delta_x, int16_t delta_y, fp32 scale);
 
 void userUI_draw_robot_xtl_mode(uint8_t en, int refresh);
+
+void userUI_draw_pitch_angle(float angle);
 
 // 超电
 void userUI_draw_constant_power_allowance(uint8_t en, Graph_Data *graph, fp32 cap_volt);
@@ -113,6 +115,8 @@ void UI_task(void const *argument)
 
         // XTL模式
         userUI_draw_robot_xtl_mode(1, supercap_flag);
+
+        userUI_draw_pitch_angle(INS_top.Pitch);
 
         //********************以上为自己定义动态ui*************
 
@@ -221,6 +225,10 @@ void userUI_draw_background(void)
     Line_Draw(&graph2, "CLH", UI_Graph_ADD, 0, UI_Color_Green, 3, 1136, 91, 1136, 129);
     Line_Draw(&graph3, "CLL", UI_Graph_ADD, 0, UI_Color_Yellow, 3, 823, 91, 823, 129);
 
+    // 画准心
+    Line_Draw(&graph4, "CE1", UI_Graph_ADD, 0, UI_Color_Green, 3, 900, 450, 900, 500);
+    Line_Draw(&graph5, "CE2", UI_Graph_ADD, 0, UI_Color_Green, 3, 850, 475, 950, 475);
+
     // 画“12.5V”
     string_Draw(&ui_str, "CVE", UI_Graph_ADD, 0, UI_Color_Purplish_red, 2, 10, 550, 85, "12.5v");
     ui_display_string(&ui_str);
@@ -297,6 +305,21 @@ void userUI_draw_robot_xtl_mode(uint8_t en, int refresh)
     }
 
     ui_display_string(&ui_str);
+}
+
+/***
+ *画pitch角度
+ */
+void userUI_draw_pitch_angle(float angle)
+{
+    // 画“PITCH:”
+    string_Draw(&ui_str, "PIT1", UI_Graph_ADD, 2, UI_Color_Green, 3, 20, 200, 800, "PITCH: ");
+    ui_display_string(&ui_str);
+
+    // 画角度
+    // Float_Draw(&ui_float, "PIT2", UI_Graph_ADD, 2, UI_Color_Green, 3, 2, 20, 600, 500, angle);
+
+    // ui_display_string(&ui_float);
 }
 
 //********************************************************************************************************************

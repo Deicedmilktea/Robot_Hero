@@ -7,10 +7,8 @@ int16_t Rotate_w;
 extern float vision_yaw;
 extern float vision_Vx;
 extern float vision_Vy;
-float yaw = 0;
-float vision_yaw1 = 0;
-float vision_Vx1 = 0;
-float vision_Vy1 = 0;
+static float yaw = 0;
+static float pitch = 0;
 
 // flag for keyboard
 uint16_t w_flag;
@@ -79,20 +77,15 @@ void USART3_rxDataHandler(uint8_t *rxBuf)
     temp_remote[1] = rxBuf[17];
 
     yaw = 100 * INS.yaw_update; // 使之接收带上小数点
-    // ins_roll = 100 * INS.Roll;
-    // ins_pitch = 100 * INS.Pitch;
-    // vision_Vx1 = 100 * vision_Vx; // 使之接收带上小数点
-    // vision_Vy1 = 100 * vision_Vy; // 使之接收带上小数点
+    pitch = 100 * INS.Roll;
 
     temp_remote[2] = ((int16_t)yaw >> 8) & 0xff;
     temp_remote[3] = (int16_t)yaw & 0xff;
-    // temp_remote[4] = ((int)ins_roll >> 8) & 0xff;
-    // temp_remote[5] = ((int)ins_roll) & 0xff;
+    temp_remote[4] = ((int16_t)pitch >> 8) & 0xff;
+    temp_remote[5] = ((int16_t)pitch) & 0xff;
     // temp_remote[6] = ((int)ins_pitch >> 8) & 0xff;
     // temp_remote[7] = (int)ins_pitch & 0xff;
 
-    temp_remote[4] = 0;
-    temp_remote[5] = 0;
     temp_remote[6] = 0;
     temp_remote[7] = 0;
 
