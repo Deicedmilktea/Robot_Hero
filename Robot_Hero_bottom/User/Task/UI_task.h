@@ -89,7 +89,7 @@ typedef unsigned char Uint8_t;
 typedef unsigned char uint8_t;
 
 // 帧头部分
-typedef __packed struct
+typedef struct
 {
     uint8_t SOF;          // 起始字节,固定0xA5
     uint16_t Data_Length; // 帧数据长度
@@ -99,7 +99,7 @@ typedef __packed struct
 } UI_Packhead;
 
 // 针对0x0301命令的 自定义ID
-typedef __packed struct
+typedef struct
 {
     uint16_t Data_ID;     // 内容ID ，自定义
     uint16_t Sender_ID;   // 发送者ID
@@ -107,13 +107,13 @@ typedef __packed struct
 } UI_Data_Operate;
 
 // 客户端图形操作
-typedef __packed struct
+typedef struct
 {
     uint8_t Delete_Operate; // 删除操作
     uint8_t Layer;          // 删除图层
 } UI_Data_Delete;           // 删除图层帧
 
-typedef __packed struct
+typedef struct
 {
     uint8_t graphic_name[3];
     uint32_t operate_tpye : 3;
@@ -128,7 +128,7 @@ typedef __packed struct
     float graph_Float; // 浮点数据
 } Float_Data;
 
-typedef __packed struct
+typedef struct
 {
     uint8_t graphic_name[3];
     uint32_t operate_tpye : 3;
@@ -145,7 +145,7 @@ typedef __packed struct
     uint32_t end_y : 11; // 图形数据
 } Graph_Data;
 
-typedef __packed struct
+typedef struct
 {
     Graph_Data Graph_Control;
     uint8_t show_Data[30];

@@ -106,8 +106,8 @@ static void shoot_loop_init()
 /*************** 射击模式 *****************/
 static void shoot_start()
 {
-  shoot_motor[0].target_speed = 6600;
-  shoot_motor[1].target_speed = 6600;
+  shoot_motor[0].target_speed = 6300;
+  shoot_motor[1].target_speed = 6300;
   // // 16 m/s
   // shoot_motor[0].target_speed = 5900;
   // shoot_motor[1].target_speed = 5900;

@@ -317,9 +317,16 @@ void userUI_draw_pitch_angle(float angle)
     ui_display_string(&ui_str);
 
     // 画角度
-    // Float_Draw(&ui_float, "PIT2", UI_Graph_ADD, 2, UI_Color_Green, 3, 2, 20, 600, 500, angle);
+    char charArray[6];                           // 用于存储字符的数组
+                                                 // 将浮点数转换为字符串
+    char stringValue[6];                         // 足够大的字符数组来存储格式化后的字符串
+    sprintf(stringValue, "%.2f", INS_top.Pitch); // 格式化浮点数到字符串，保留两位小数
 
-    // ui_display_string(&ui_float);
+    // 将字符串中的字符逐个存储到字符数组中
+    strcpy(charArray, stringValue);
+
+    string_Draw(&ui_str, "PIT2", UI_Graph_ADD, 2, UI_Color_Green, 3, 20, 400, 800, charArray);
+    ui_display_string(&ui_str);
 }
 
 //********************************************************************************************************************
@@ -780,6 +787,45 @@ void ui_display_string(String_Data *str_data)
         osDelay(1);
     }
     usart6_tx_dma_enable(referee_uart_tx_buf[referee_tx_fifo], sizeof(UI_Packhead) + sizeof(UI_Data_Operate) + sizeof(String_Data) + 2);
+    referee_tx_fifo = referee_tx_fifo == 0 ? 1 : 0;
+}
+
+/**
+ *  @brief          使用自定义UI绘制float数据
+ *  @param[in]      字符串数据结构体指针
+ *  @return         none
+ */
+void ui_display_float(Float_Data *float_data)
+{
+    UI_Packhead head;
+    UI_Data_Operate operate;
+
+    // 1. 帧头内容初始化
+    head.SOF = 0xA5;
+    head.Data_Length = sizeof(UI_Data_Operate) + sizeof(Float_Data);
+    head.Seq = UI_Seq++;
+    head.CMD_ID = 0x301;
+
+    // 2. 机器人间通讯包头初始化
+    operate.Data_ID = 0x110;               // 自定义ID,绘制字符串
+    operate.Sender_ID = get_robot_id();    // 发送端ID
+    operate.Receiver_ID = get_client_id(); // 接收端ID
+
+    // 3. 数据转存
+    memcpy(referee_uart_tx_buf[referee_tx_fifo], &head, sizeof(UI_Packhead));
+    memcpy(referee_uart_tx_buf[referee_tx_fifo] + sizeof(UI_Packhead), &operate, sizeof(UI_Data_Operate));
+    memcpy(referee_uart_tx_buf[referee_tx_fifo] + sizeof(UI_Packhead) + sizeof(UI_Data_Operate), float_data, sizeof(Float_Data));
+
+    // 4. CRC校验
+    Append_CRC8_Check_Sum(referee_uart_tx_buf[referee_tx_fifo], 5);
+    Append_CRC16_Check_Sum(referee_uart_tx_buf[referee_tx_fifo], sizeof(UI_Packhead) + sizeof(UI_Data_Operate) + sizeof(Float_Data) + 2);
+
+    // 5. DMA发送
+    while (get_usart6_tx_dma_busy_flag())
+    {
+        osDelay(1);
+    }
+    usart6_tx_dma_enable(referee_uart_tx_buf[referee_tx_fifo], sizeof(UI_Packhead) + sizeof(UI_Data_Operate) + sizeof(Float_Data) + 2);
     referee_tx_fifo = referee_tx_fifo == 0 ? 1 : 0;
 }
 
