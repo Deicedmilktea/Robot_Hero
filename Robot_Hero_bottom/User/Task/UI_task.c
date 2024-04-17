@@ -59,7 +59,9 @@ void userUI_draw_foresight_6(int16_t delta_x, int16_t delta_y, fp32 scale);
 
 void userUI_draw_robot_xtl_mode(uint8_t en, int refresh);
 
-void userUI_draw_pitch_angle(float angle);
+void userUI_draw_pitch_angle();
+
+void userUI_draw_chassis_mode();
 
 // 超电
 void userUI_draw_constant_power_allowance(uint8_t en, Graph_Data *graph, fp32 cap_volt);
@@ -116,7 +118,9 @@ void UI_task(void const *argument)
         // XTL模式
         userUI_draw_robot_xtl_mode(1, supercap_flag);
 
-        userUI_draw_pitch_angle(INS_top.Pitch);
+        userUI_draw_pitch_angle();
+
+        userUI_draw_chassis_mode();
 
         //********************以上为自己定义动态ui*************
 
@@ -225,7 +229,7 @@ void userUI_draw_background(void)
     Line_Draw(&graph2, "CLH", UI_Graph_ADD, 0, UI_Color_Green, 3, 1136, 91, 1136, 129);
     Line_Draw(&graph3, "CLL", UI_Graph_ADD, 0, UI_Color_Yellow, 3, 823, 91, 823, 129);
 
-    // 画准心
+    // 画准心(仅供参考，图传中心不是发射中心，他们甚至不在一条垂直线上 T_T)
     Line_Draw(&graph4, "CE1", UI_Graph_ADD, 0, UI_Color_Green, 3, 900, 450, 900, 500);
     Line_Draw(&graph5, "CE2", UI_Graph_ADD, 0, UI_Color_Green, 3, 850, 475, 950, 475);
 
@@ -240,9 +244,9 @@ void userUI_draw_background(void)
     ui_display_string(&ui_str);
     // 画“23V”
     string_Draw(&ui_str, "CVF", UI_Graph_ADD, 0, UI_Color_Green, 2, 10, 1340, 85, "23v");
+    ui_display_string(&ui_str);
 
     ui_display_7_graph(&graph1, &graph2, &graph3, &graph4, &graph5, &graph6, &graph7);
-    ui_display_string(&ui_str);
 }
 
 // 绘制超电，图层3
@@ -310,10 +314,10 @@ void userUI_draw_robot_xtl_mode(uint8_t en, int refresh)
 /***
  *画pitch角度
  */
-void userUI_draw_pitch_angle(float angle)
+void userUI_draw_pitch_angle()
 {
     // 画“PITCH:”
-    string_Draw(&ui_str, "PIT1", UI_Graph_ADD, 2, UI_Color_Green, 3, 20, 200, 800, "PITCH: ");
+    string_Draw(&ui_str, "PI1", UI_Graph_ADD, 2, UI_Color_Green, 3, 20, 200, 800, "PITCH: ");
     ui_display_string(&ui_str);
 
     // 画角度
@@ -325,7 +329,30 @@ void userUI_draw_pitch_angle(float angle)
     // 将字符串中的字符逐个存储到字符数组中
     strcpy(charArray, stringValue);
 
-    string_Draw(&ui_str, "PIT2", UI_Graph_ADD, 2, UI_Color_Green, 3, 20, 400, 800, charArray);
+    string_Draw(&ui_str, "PI2", UI_Graph_Change, 2, UI_Color_Green, 3, 20, 320, 800, charArray);
+    ui_display_string(&ui_str);
+}
+
+/**
+ * @brief 画底盘模式
+ *
+ */
+void userUI_draw_chassis_mode()
+{
+
+    string_Draw(&ui_str, "CH1", UI_Graph_ADD, 2, UI_Color_Green, 3, 20, 200, 700, "CHASS MODE: ");
+    ui_display_string(&ui_str);
+
+    // 跟随模式
+    if (chassis_mode == 1)
+    {
+        string_Draw(&ui_str, "CH2", UI_Graph_Change, 2, UI_Color_Green, 3, 20, 400, 700, "FOLLOW");
+    }
+    // 正常模式
+    else if (chassis_mode == 2)
+    {
+        string_Draw(&ui_str, "CH2", UI_Graph_Change, 2, UI_Color_Green, 3, 20, 400, 700, "NORMAL");
+    }
     ui_display_string(&ui_str);
 }
 
@@ -790,44 +817,44 @@ void ui_display_string(String_Data *str_data)
     referee_tx_fifo = referee_tx_fifo == 0 ? 1 : 0;
 }
 
-/**
- *  @brief          使用自定义UI绘制float数据
- *  @param[in]      字符串数据结构体指针
- *  @return         none
- */
-void ui_display_float(Float_Data *float_data)
-{
-    UI_Packhead head;
-    UI_Data_Operate operate;
+// /**
+//  *  @brief          使用自定义UI绘制float数据
+//  *  @param[in]      字符串数据结构体指针
+//  *  @return         none
+//  */
+// void ui_display_float(Float_Data *float_data)
+// {
+//     UI_Packhead head;
+//     UI_Data_Operate operate;
 
-    // 1. 帧头内容初始化
-    head.SOF = 0xA5;
-    head.Data_Length = sizeof(UI_Data_Operate) + sizeof(Float_Data);
-    head.Seq = UI_Seq++;
-    head.CMD_ID = 0x301;
+//     // 1. 帧头内容初始化
+//     head.SOF = 0xA5;
+//     head.Data_Length = sizeof(UI_Data_Operate) + sizeof(Float_Data);
+//     head.Seq = UI_Seq++;
+//     head.CMD_ID = 0x301;
 
-    // 2. 机器人间通讯包头初始化
-    operate.Data_ID = 0x110;               // 自定义ID,绘制字符串
-    operate.Sender_ID = get_robot_id();    // 发送端ID
-    operate.Receiver_ID = get_client_id(); // 接收端ID
+//     // 2. 机器人间通讯包头初始化
+//     operate.Data_ID = 0x110;               // 自定义ID,绘制字符串
+//     operate.Sender_ID = get_robot_id();    // 发送端ID
+//     operate.Receiver_ID = get_client_id(); // 接收端ID
 
-    // 3. 数据转存
-    memcpy(referee_uart_tx_buf[referee_tx_fifo], &head, sizeof(UI_Packhead));
-    memcpy(referee_uart_tx_buf[referee_tx_fifo] + sizeof(UI_Packhead), &operate, sizeof(UI_Data_Operate));
-    memcpy(referee_uart_tx_buf[referee_tx_fifo] + sizeof(UI_Packhead) + sizeof(UI_Data_Operate), float_data, sizeof(Float_Data));
+//     // 3. 数据转存
+//     memcpy(referee_uart_tx_buf[referee_tx_fifo], &head, sizeof(UI_Packhead));
+//     memcpy(referee_uart_tx_buf[referee_tx_fifo] + sizeof(UI_Packhead), &operate, sizeof(UI_Data_Operate));
+//     memcpy(referee_uart_tx_buf[referee_tx_fifo] + sizeof(UI_Packhead) + sizeof(UI_Data_Operate), float_data, sizeof(Float_Data));
 
-    // 4. CRC校验
-    Append_CRC8_Check_Sum(referee_uart_tx_buf[referee_tx_fifo], 5);
-    Append_CRC16_Check_Sum(referee_uart_tx_buf[referee_tx_fifo], sizeof(UI_Packhead) + sizeof(UI_Data_Operate) + sizeof(Float_Data) + 2);
+//     // 4. CRC校验
+//     Append_CRC8_Check_Sum(referee_uart_tx_buf[referee_tx_fifo], 5);
+//     Append_CRC16_Check_Sum(referee_uart_tx_buf[referee_tx_fifo], sizeof(UI_Packhead) + sizeof(UI_Data_Operate) + sizeof(Float_Data) + 2);
 
-    // 5. DMA发送
-    while (get_usart6_tx_dma_busy_flag())
-    {
-        osDelay(1);
-    }
-    usart6_tx_dma_enable(referee_uart_tx_buf[referee_tx_fifo], sizeof(UI_Packhead) + sizeof(UI_Data_Operate) + sizeof(Float_Data) + 2);
-    referee_tx_fifo = referee_tx_fifo == 0 ? 1 : 0;
-}
+//     // 5. DMA发送
+//     while (get_usart6_tx_dma_busy_flag())
+//     {
+//         osDelay(1);
+//     }
+//     usart6_tx_dma_enable(referee_uart_tx_buf[referee_tx_fifo], sizeof(UI_Packhead) + sizeof(UI_Data_Operate) + sizeof(Float_Data) + 2);
+//     referee_tx_fifo = referee_tx_fifo == 0 ? 1 : 0;
+// }
 
 uint8_t get_usart6_tx_dma_busy_flag(void)
 {
