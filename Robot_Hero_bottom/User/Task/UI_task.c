@@ -59,9 +59,9 @@ void userUI_draw_foresight_6(int16_t delta_x, int16_t delta_y, fp32 scale);
 
 void userUI_draw_robot_xtl_mode(uint8_t en, int refresh);
 
-void userUI_draw_pitch_angle();
+void userUI_draw_pitch_angle(uint8_t en);
 
-void userUI_draw_chassis_mode();
+void userUI_draw_chassis_mode(uint8_t en);
 
 // 超电
 void userUI_draw_constant_power_allowance(uint8_t en, Graph_Data *graph, fp32 cap_volt);
@@ -118,9 +118,9 @@ void UI_task(void const *argument)
         // XTL模式
         userUI_draw_robot_xtl_mode(1, supercap_flag);
 
-        userUI_draw_pitch_angle();
+        userUI_draw_pitch_angle(1);
 
-        userUI_draw_chassis_mode();
+        userUI_draw_chassis_mode(1);
 
         //********************以上为自己定义动态ui*************
 
@@ -151,6 +151,8 @@ void userUI_init(void)
 
     userUI_draw_constant_power_allowance(0, &graph8, powerdata[1]);
     userUI_draw_robot_xtl_mode(0, supercap_flag);
+    userUI_draw_pitch_angle(0);
+    userUI_draw_chassis_mode(0);
 }
 
 /**
@@ -314,7 +316,7 @@ void userUI_draw_robot_xtl_mode(uint8_t en, int refresh)
 /***
  *画pitch角度
  */
-void userUI_draw_pitch_angle()
+void userUI_draw_pitch_angle(uint8_t en)
 {
     // 画“PITCH:”
     string_Draw(&ui_str, "PI1", UI_Graph_ADD, 2, UI_Color_Green, 3, 20, 200, 800, "PITCH: ");
@@ -329,7 +331,7 @@ void userUI_draw_pitch_angle()
     // 将字符串中的字符逐个存储到字符数组中
     strcpy(charArray, stringValue);
 
-    string_Draw(&ui_str, "PI2", UI_Graph_Change, 2, UI_Color_Green, 3, 20, 320, 800, charArray);
+    string_Draw(&ui_str, "PI2", en == 0 ? UI_Graph_ADD : UI_Graph_Change, 2, UI_Color_Green, 3, 20, 320, 800, charArray);
     ui_display_string(&ui_str);
 }
 
@@ -337,21 +339,21 @@ void userUI_draw_pitch_angle()
  * @brief 画底盘模式
  *
  */
-void userUI_draw_chassis_mode()
+void userUI_draw_chassis_mode(uint8_t en)
 {
 
-    string_Draw(&ui_str, "CH1", UI_Graph_ADD, 2, UI_Color_Green, 3, 20, 200, 700, "CHASS MODE: ");
+    string_Draw(&ui_str, "CH1", UI_Graph_ADD, 2, UI_Color_Green, 3, 20, 200, 750, "CHASS MODE: ");
     ui_display_string(&ui_str);
 
     // 跟随模式
     if (chassis_mode == 1)
     {
-        string_Draw(&ui_str, "CH2", UI_Graph_Change, 2, UI_Color_Green, 3, 20, 400, 700, "FOLLOW");
+        string_Draw(&ui_str, "CH2", en == 0 ? UI_Graph_ADD : UI_Graph_Change, 2, UI_Color_Green, 3, 20, 410, 750, "FOLLOW");
     }
     // 正常模式
     else if (chassis_mode == 2)
     {
-        string_Draw(&ui_str, "CH2", UI_Graph_Change, 2, UI_Color_Green, 3, 20, 400, 700, "NORMAL");
+        string_Draw(&ui_str, "CH2", en == 0 ? UI_Graph_ADD : UI_Graph_Change, 2, UI_Color_Green, 3, 20, 410, 750, "NORMAL");
     }
     ui_display_string(&ui_str);
 }

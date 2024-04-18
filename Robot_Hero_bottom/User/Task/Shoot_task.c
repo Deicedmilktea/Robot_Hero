@@ -12,6 +12,7 @@
 #include <stdbool.h>
 
 #define TRIGGER_SINGLE_ANGLE 1140 // 19*360/6
+#define TRIGGER_SPEED 250
 
 trigger_t trigger; // 拨盘can1，id = 5
 
@@ -79,12 +80,16 @@ void Shoot_task(void const *argument)
       {
         is_angle_control = true;
         trigger_single_angle_move();
+        // is_angle_control = false;
+        // shoot_start();
       }
       else if (z_flag)
       {
         is_angle_control = false;
         shoot_reverse();
       }
+      else
+        shoot_stop();
     }
 
     // 右拨杆下，遥控器控制
@@ -120,12 +125,12 @@ static void shoot_loop_init()
   // trigger.pid_value[2] = 0.05;
 
   trigger.pid_speed_value[0] = 30;
-  trigger.pid_speed_value[1] = 0.09;
+  trigger.pid_speed_value[1] = 0.1;
   trigger.pid_speed_value[2] = 0;
 
-  trigger.pid_angle_value[0] = 2;
-  trigger.pid_angle_value[1] = 0;
-  trigger.pid_angle_value[2] = 0;
+  trigger.pid_angle_value[0] = 10;
+  trigger.pid_angle_value[1] = 0.05;
+  trigger.pid_angle_value[2] = 500;
 
   // 初始化目标速度
   trigger.target_speed = 0;
@@ -139,7 +144,7 @@ static void shoot_loop_init()
 /***************射击模式*****************/
 static void shoot_start()
 {
-  trigger.target_speed = -150;
+  trigger.target_speed = -TRIGGER_SPEED;
 }
 
 /*************拨盘旋转固定角度***********/
@@ -157,7 +162,7 @@ static void trigger_single_angle_move()
 /*****************反转******************/
 static void shoot_reverse()
 {
-  trigger.target_speed = 250;
+  trigger.target_speed = TRIGGER_SPEED;
 }
 
 /***************停止射击模式**************/

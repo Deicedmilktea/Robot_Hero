@@ -42,39 +42,39 @@ void Shoot_task(void const *argument)
 
   for (;;)
   {
-    // // 读取键鼠是否开启摩擦轮
-    // read_keyboard();
+    // 读取键鼠是否开启摩擦轮
+    read_keyboard();
 
-    // // 右拨杆中，键鼠控制
-    // if (rc_ctrl.rc.s[0] == 3)
-    // {
-    //   shoot_start();
-    // }
-
-    // // 右拨杆下，遥控器控制
-    // else if (rc_ctrl.rc.s[0] == 2)
-    // {
-    //   // 遥控器左边拨到上和中，电机启动
-    //   if (rc_ctrl.rc.s[1] == 1 || rc_ctrl.rc.s[1] == 3)
-    //   {
-    //     shoot_start();
-    //   }
-    //   else
-    //   {
-    //     shoot_stop();
-    //   }
-    // }
-
-    // 表演模式
-    // 遥控器左边拨到上和中，电机启动
-    if (rc_ctrl.rc.s[1] == 1 || rc_ctrl.rc.s[1] == 3)
+    // 右拨杆中，键鼠控制
+    if (rc_ctrl.rc.s[0] == 3)
     {
       shoot_start();
     }
-    else
+
+    // 右拨杆下，遥控器控制
+    else if (rc_ctrl.rc.s[0] == 2)
     {
-      shoot_stop();
+      // 遥控器左边拨到上和中，电机启动
+      if (rc_ctrl.rc.s[1] == 1 || rc_ctrl.rc.s[1] == 3)
+      {
+        shoot_start();
+      }
+      else
+      {
+        shoot_stop();
+      }
     }
+
+    // // 表演模式
+    // // 遥控器左边拨到上和中，电机启动
+    // if (rc_ctrl.rc.s[1] == 1 || rc_ctrl.rc.s[1] == 3)
+    // {
+    //   shoot_start();
+    // }
+    // else
+    // {
+    //   shoot_stop();
+    // }
 
     shoot_current_give();
     osDelay(1);
@@ -106,8 +106,8 @@ static void shoot_loop_init()
 /*************** 射击模式 *****************/
 static void shoot_start()
 {
-  shoot_motor[0].target_speed = 6300;
-  shoot_motor[1].target_speed = 6300;
+  shoot_motor[0].target_speed = 6200;
+  shoot_motor[1].target_speed = -6210;
   // // 16 m/s
   // shoot_motor[0].target_speed = 5900;
   // shoot_motor[1].target_speed = 5900;
@@ -162,9 +162,8 @@ static void shoot_can2_cmd(int16_t v1, int16_t v2)
 /********************************PID计算速度并发送电流****************************/
 static void shoot_current_give()
 {
-
   motor_can2[0].set_current = pid_calc(&shoot_motor[0].pid, shoot_motor[0].target_speed, motor_can2[0].rotor_speed);
-  motor_can2[1].set_current = pid_calc(&shoot_motor[1].pid, shoot_motor[1].target_speed, -motor_can2[1].rotor_speed);
+  motor_can2[1].set_current = pid_calc(&shoot_motor[1].pid, shoot_motor[1].target_speed, motor_can2[1].rotor_speed);
 
-  shoot_can2_cmd(motor_can2[0].set_current, -motor_can2[1].set_current);
+  shoot_can2_cmd(motor_can2[0].set_current, motor_can2[1].set_current);
 }

@@ -216,6 +216,12 @@ static void gimbal_mode_vision()
 
 	detel_calc(&gimbal_gyro.target_angle);
 
+	// // 云台角度输出
+	// gimbal_gyro.pid_angle_out = pid_calc_a(&gimbal_gyro.pid_angle_vision, gimbal_gyro.target_angle, INS.yaw_update);
+
+	// // 云台速度输出
+	// gimbal_gyro.pid_speed_out = pid_calc(&gimbal_gyro.pid_speed_vision, gimbal_gyro.pid_angle_out, INS.Gyro[2] * 57.3f);
+
 	// 云台角度输出
 	gimbal_gyro.pid_angle_out = pid_calc_a(&gimbal_gyro.pid_angle_vision, gimbal_gyro.target_angle, INS.yaw_update);
 

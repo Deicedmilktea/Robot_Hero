@@ -36,7 +36,7 @@ float rx = 0.2, ry = 0.2;
 float relative_yaw = 0;
 int yaw_correction_flag = 1;                                                          // yaw值校正标志
 static int16_t key_x_fast, key_y_fast, key_x_slow, key_y_slow, key_Wz_acw, key_Wz_cw; // 键盘控制变量
-uint8_t chassis_mode = 0;                                                             // 判断底盘状态，用于UI编写
+uint8_t chassis_mode = 1;                                                             // 判断底盘状态，用于UI编写
 uint8_t supercap_flag = 0;                                                            // 是否开启超级电容
 static float init_relative_yaw = 0;
 static uint8_t cycle = 0; // do while循环一次的条件
@@ -145,20 +145,23 @@ void Chassis_task(void const *pvParameters)
     // 右拨杆中，键鼠操作
     if (rc_ctrl.rc.s[0] == 3)
     {
+      key_control();
+
       // 底盘跟随云台模式，r键触发
       if (chassis_mode == 1)
       {
-        key_control();
         chassis_mode_follow();
       }
 
       // 正常运动模式，f键触发
       else if (chassis_mode == 2)
       {
-        key_control();
         manual_yaw_correct(); // 手动校正yaw值，头对正，按下V键
         chassis_mode_normal();
       }
+
+      else
+        chassis_mode_follow();
     }
 
     // 右拨杆下，遥控操作
@@ -355,10 +358,10 @@ static void chassis_current_give()
   }
 
   // 在静止状态下锁死底盘，因为如果走功率限制，底盘很软(T_T)
-  if (chassis[0].target_speed != 0 || chassis[1].target_speed != 0 || chassis[2].target_speed != 0 || chassis[3].target_speed != 0)
-    Chassis_Power_Limit(4 * chassis_speed_max);
+  // if (chassis[0].target_speed != 0 || chassis[1].target_speed != 0 || chassis[2].target_speed != 0 || chassis[3].target_speed != 0)
+  Chassis_Power_Limit(4 * chassis_speed_max);
 
-  chassis_can2_cmd(motor_can2[0].set_current, motor_can2[1].set_current, motor_can2[2].set_current, motor_can2[3].set_current);
+  // chassis_can2_cmd(motor_can2[0].set_current, motor_can2[1].set_current, motor_can2[2].set_current, motor_can2[3].set_current);
 }
 
 /**************************** CAN2发送信号 *****************************/
