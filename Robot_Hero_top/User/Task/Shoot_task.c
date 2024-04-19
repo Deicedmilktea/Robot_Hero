@@ -82,7 +82,7 @@ static void shoot_loop_init()
   shoot_motor[1].pid_value[2] = 0;
 
   // friction_up
-  shoot_motor[2].pid_value[0] = 10;
+  shoot_motor[2].pid_value[0] = 20;
   shoot_motor[2].pid_value[1] = 0;
   shoot_motor[2].pid_value[2] = 0;
 
