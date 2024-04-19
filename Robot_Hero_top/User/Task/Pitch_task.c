@@ -8,6 +8,7 @@
 #include "cmsis_os.h"
 #include "rc_potocal.h"
 #include "ins_task.h"
+#include "stdbool.h"
 
 extern motor_info_t motor_can2[4];
 extern RC_ctrl_t rc_ctrl;
@@ -15,6 +16,7 @@ pitch_t pitch;
 float relative_pitch = 0;
 extern INS_t INS_bottom;
 extern float vision_pitch;
+extern bool vision_is_tracking;
 
 // 初始化
 static void pitch_loop_init();
@@ -39,10 +41,15 @@ void Pitch_task(void const *argument)
         // 视觉识别，右拨杆上/鼠标右键
         if (rc_ctrl.rc.s[0] == 1 || press_right == 1)
         {
-            // 视觉模式下的遥控器微调
-            pitch.vision_remote_pitch = (rc_ctrl.rc.ch[3] / 660.0f - rc_ctrl.mouse.y / 16384.0f) * 10.0f;
-            pitch.vision_target_pitch = pitch.vision_remote_pitch + vision_pitch;
-            // pitch.vision_target_pitch = vision_pitch;
+            if (vision_is_tracking)
+            {
+                // 视觉模式下的遥控器微调
+                pitch.vision_remote_pitch = (rc_ctrl.rc.ch[3] / 660.0f - rc_ctrl.mouse.y / 16384.0f) * 20.0f;
+                pitch.vision_target_pitch = pitch.vision_remote_pitch + vision_pitch;
+                // pitch.vision_target_pitch = vision_pitch;
+            }
+            else
+                pitch.vision_remote_pitch = (rc_ctrl.rc.ch[3] / 660.0f - rc_ctrl.mouse.y / 16384.0f) * 20.0f;
 
             if (pitch.vision_target_pitch > 40)
             {
