@@ -118,7 +118,7 @@ static void shoot_start_lr_up()
   // shoot_motor[1].target_speed = 5900;
   shoot_motor[0].target_speed = -7000;
   shoot_motor[1].target_speed = 7000;
-  shoot_motor[2].target_speed = -1000;
+  shoot_motor[2].target_speed = -3500;
 }
 
 /*************** 停止射击模式 **************/
