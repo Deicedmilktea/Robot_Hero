@@ -56,7 +56,7 @@ void Shoot_task(void const *argument)
     // 遥控器右边拨到中，左右摩擦轮启动
     else if (rc_ctrl.rc.s[1] == 3 || friction_flag == 1)
     {
-      shoot_start_lr();
+      shoot_start_lr_up();
     }
     else
     {
