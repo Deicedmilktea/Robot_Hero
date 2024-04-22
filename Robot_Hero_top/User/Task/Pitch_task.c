@@ -47,22 +47,25 @@ void Pitch_task(void const *argument)
                 pitch.vision_remote_pitch = (rc_ctrl.rc.ch[3] / 660.0f - rc_ctrl.mouse.y / 16384.0f) * 20.0f;
                 pitch.vision_target_pitch = pitch.vision_remote_pitch + vision_pitch;
                 // pitch.vision_target_pitch = vision_pitch;
+
+                if (pitch.vision_target_pitch > 40)
+                {
+                    pitch.vision_target_pitch = 40;
+                }
+                if (pitch.vision_target_pitch < 0)
+                {
+                    pitch.vision_target_pitch = 0;
+                }
+
+                pitch.target_speed = -pid_calc(&pitch.vision_pid_angle, pitch.vision_target_pitch, INS.Roll);
+
+                // target_speed 的计算必须加上负号（想要符合给正值抬头，负值低头的话），与3508的旋转方向相关，否则pitch会疯转
             }
             else
-                pitch.vision_remote_pitch = (rc_ctrl.rc.ch[3] / 660.0f - rc_ctrl.mouse.y / 16384.0f) * 20.0f;
-
-            if (pitch.vision_target_pitch > 40)
             {
-                pitch.vision_target_pitch = 40;
+                pitch.target_speed = -(rc_ctrl.rc.ch[3] / 660.0f * pitch.speed_max - 200 * rc_ctrl.mouse.y / 16384.0f * pitch.speed_max);
+                pitch_position_limit();
             }
-            if (pitch.vision_target_pitch < 0)
-            {
-                pitch.vision_target_pitch = 0;
-            }
-
-            pitch.target_speed = -pid_calc(&pitch.vision_pid_angle, pitch.vision_target_pitch, INS.Roll);
-
-            // target_speed 的计算必须加上负号（想要符合给正值抬头，负值低头的话），与3508的旋转方向相关，否则pitch会疯转
         }
 
         else

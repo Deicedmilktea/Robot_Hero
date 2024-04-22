@@ -128,8 +128,8 @@ static void shoot_loop_init()
   trigger.pid_speed_value[1] = 0.1;
   trigger.pid_speed_value[2] = 0;
 
-  trigger.pid_angle_value[0] = 10;
-  trigger.pid_angle_value[1] = 0.05;
+  trigger.pid_angle_value[0] = 20;
+  trigger.pid_angle_value[1] = 0.03;
   trigger.pid_angle_value[2] = 500;
 
   // 初始化目标速度
@@ -138,7 +138,7 @@ static void shoot_loop_init()
 
   // 初始化PID
   pid_init(&trigger.pid_speed, trigger.pid_speed_value, 20000, 30000); // trigger_speed
-  pid_init(&trigger.pid_angle, trigger.pid_angle_value, 20000, 30000); // trigger_angle
+  pid_init(&trigger.pid_angle, trigger.pid_angle_value, 10000, 20000); // trigger_angle
 }
 
 /***************射击模式*****************/
