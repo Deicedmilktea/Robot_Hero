@@ -13,7 +13,7 @@
 
 shoot_t shoot_motor[3];             // 摩擦轮can2，id = 56，2006限位ID=8
 motor_info_t motor_can2[5];         //[2]:pitch,[3]:yaw,[4]:shoot_up
-int16_t friction_max_speed = 20000; // 摩擦轮速度
+int16_t friction_max_speed = 30000; // 摩擦轮速度
 uint8_t friction_flag = 0;          // 开启摩擦轮的标志
 
 extern RC_ctrl_t rc_ctrl;
@@ -72,19 +72,19 @@ void Shoot_task(void const *argument)
 static void shoot_loop_init()
 {
   // friction_left
-  shoot_motor[0].pid_value[0] = 10;
+  shoot_motor[0].pid_value[0] = 30;
   shoot_motor[0].pid_value[1] = 0;
-  shoot_motor[0].pid_value[2] = 0;
+  shoot_motor[0].pid_value[2] = 20;
 
   // friction_right
-  shoot_motor[1].pid_value[0] = 10;
+  shoot_motor[1].pid_value[0] = 30;
   shoot_motor[1].pid_value[1] = 0;
-  shoot_motor[1].pid_value[2] = 0;
+  shoot_motor[1].pid_value[2] = 20;
 
   // friction_up
-  shoot_motor[2].pid_value[0] = 20;
+  shoot_motor[2].pid_value[0] = 30;
   shoot_motor[2].pid_value[1] = 0;
-  shoot_motor[2].pid_value[2] = 0;
+  shoot_motor[2].pid_value[2] = 20;
 
   // 初始化目标速度
   shoot_motor[0].target_speed = 0;
@@ -118,7 +118,7 @@ static void shoot_start_lr_up()
   // shoot_motor[1].target_speed = 5900;
   shoot_motor[0].target_speed = -7000;
   shoot_motor[1].target_speed = 7000;
-  shoot_motor[2].target_speed = -3500;
+  shoot_motor[2].target_speed = -1500;
 }
 
 /*************** 停止射击模式 **************/
