@@ -85,12 +85,12 @@ void Shoot_task(void const *argument)
 static void shoot_loop_init()
 {
   // friction_left
-  shoot_motor[0].pid_value[0] = 30;
+  shoot_motor[0].pid_value[0] = 100;
   shoot_motor[0].pid_value[1] = 0;
   shoot_motor[0].pid_value[2] = 20;
 
   // friction_right
-  shoot_motor[1].pid_value[0] = 30;
+  shoot_motor[1].pid_value[0] = 100;
   shoot_motor[1].pid_value[1] = 0;
   shoot_motor[1].pid_value[2] = 20;
 

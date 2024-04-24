@@ -167,8 +167,8 @@ void Chassis_task(void const *pvParameters)
     // 右拨杆下，遥控操作
     else if (rc_ctrl.rc.s[0] == 2)
     {
-      // chassis_mode_follow();
-      chassis_mode_normal();
+      chassis_mode_follow();
+      // chassis_mode_normal();
     }
 
     else
@@ -249,15 +249,15 @@ static void chassis_mode_normal()
   Vx = cos(relative_yaw) * Temp_Vx - sin(relative_yaw) * Temp_Vy;
   Vy = sin(relative_yaw) * Temp_Vx + cos(relative_yaw) * Temp_Vy;
 
-  // chassis[0].target_speed = Vy + Vx + 3 * (-Wz) * (rx + ry);
-  // chassis[1].target_speed = -Vy + Vx + 3 * (-Wz) * (rx + ry);
-  // chassis[2].target_speed = -Vy - Vx + 3 * (-Wz) * (rx + ry);
-  // chassis[3].target_speed = Vy - Vx + 3 * (-Wz) * (rx + ry);
+  chassis[0].target_speed = Vy + Vx + 3 * (-Wz) * (rx + ry);
+  chassis[1].target_speed = -Vy + Vx + 3 * (-Wz) * (rx + ry);
+  chassis[2].target_speed = -Vy - Vx + 3 * (-Wz) * (rx + ry);
+  chassis[3].target_speed = Vy - Vx + 3 * (-Wz) * (rx + ry);
 
-  chassis[0].target_speed = 0;
-  chassis[1].target_speed = 0;
-  chassis[2].target_speed = 0;
-  chassis[3].target_speed = 0;
+  // chassis[0].target_speed = 0;
+  // chassis[1].target_speed = 0;
+  // chassis[2].target_speed = 0;
+  // chassis[3].target_speed = 0;
 
   cycle = 1; // 记录的模式状态的变量，以便切换到 follow 模式的时候，可以知道分辨已经切换模式，计算一次 yaw 的差值
 }
@@ -359,7 +359,7 @@ static void chassis_current_give()
 
   // 在静止状态下锁死底盘，因为如果走功率限制，底盘很软(T_T)
   // if (chassis[0].target_speed != 0 || chassis[1].target_speed != 0 || chassis[2].target_speed != 0 || chassis[3].target_speed != 0)
-  // Chassis_Power_Limit(4 * chassis_speed_max);
+  Chassis_Power_Limit(4 * chassis_speed_max);
 
   chassis_can2_cmd(motor_can2[0].set_current, motor_can2[1].set_current, motor_can2[2].set_current, motor_can2[3].set_current);
 }
