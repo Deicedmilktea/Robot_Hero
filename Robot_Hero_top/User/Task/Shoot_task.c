@@ -86,13 +86,13 @@ static void shoot_loop_init()
 {
   // friction_left
   shoot_motor[0].pid_value[0] = 30;
-  shoot_motor[0].pid_value[1] = 2;
-  shoot_motor[0].pid_value[2] = 20;
+  shoot_motor[0].pid_value[1] = 0;
+  shoot_motor[0].pid_value[2] = 0;
 
   // friction_right
   shoot_motor[1].pid_value[0] = 30;
-  shoot_motor[1].pid_value[1] = 2;
-  shoot_motor[1].pid_value[2] = 20;
+  shoot_motor[1].pid_value[1] = 0;
+  shoot_motor[1].pid_value[2] = 0;
 
   // 初始化目标速度
   shoot_motor[0].target_speed = 0;
@@ -162,16 +162,16 @@ static void shoot_can2_cmd(int16_t v1, int16_t v2)
 /********************************PID计算速度并发送电流****************************/
 static void shoot_current_give()
 {
-  if (6200 - motor_can2[0].rotor_speed > 200 || 6200 + motor_can2[1].rotor_speed > 200)
-  {
-    shoot_motor[0].target_speed = 9200;
-    shoot_motor[1].target_speed = -9200;
-  }
-  else
-  {
-    shoot_motor[0].target_speed = 6200;
-    shoot_motor[1].target_speed = -6200;
-  }
+  // if (6200 - motor_can2[0].rotor_speed > 200 || 6200 + motor_can2[1].rotor_speed > 200)
+  // {
+  //   shoot_motor[0].target_speed = 9200;
+  //   shoot_motor[1].target_speed = -9200;
+  // }
+  // else
+  // {
+  //   shoot_motor[0].target_speed = 6200;
+  //   shoot_motor[1].target_speed = -6200;
+  // }
   motor_can2[0].set_current = pid_calc(&shoot_motor[0].pid, shoot_motor[0].target_speed, motor_can2[0].rotor_speed);
   motor_can2[1].set_current = pid_calc(&shoot_motor[1].pid, shoot_motor[1].target_speed, motor_can2[1].rotor_speed);
 

@@ -189,6 +189,7 @@ void Chassis_task(void const *pvParameters)
     // else
     //   chassis_mode_stop();
 
+    // chassis_mode_follow();
     chassis_current_give();
     // datapy(); // 超电数据接收
     osDelay(1);
@@ -490,20 +491,27 @@ static void Chassis_Power_Limit(double Chassis_pidout_target_limit)
     /*缓冲能量占比环，总体约束*/
     if (!supercap_flag)
     {
-      if (powerdata[1] < 24 && powerdata[1] > 23)
-        Plimit = 0.9;
-      else if (powerdata[1] < 23 && powerdata[1] > 22)
-        Plimit = 0.8;
-      else if (powerdata[1] < 22 && powerdata[1] > 21)
-        Plimit = 0.7;
-      else if (powerdata[1] < 21 && powerdata[1] > 20)
-        Plimit = 0.6;
-      else if (powerdata[1] < 20 && powerdata[1] > 18)
-        Plimit = 0.5;
-      else if (powerdata[1] < 18 && powerdata[1] > 15)
-        Plimit = 0.3;
-      else if (powerdata[1] < 15)
-        Plimit = 0.1;
+      if (powerdata[1]) // 如果接入supercap
+      {
+        if (powerdata[1] < 24 && powerdata[1] > 23)
+          Plimit = 0.9;
+        else if (powerdata[1] < 23 && powerdata[1] > 22)
+          Plimit = 0.8;
+        else if (powerdata[1] < 22 && powerdata[1] > 21)
+          Plimit = 0.7;
+        else if (powerdata[1] < 21 && powerdata[1] > 20)
+          Plimit = 0.6;
+        else if (powerdata[1] < 20 && powerdata[1] > 18)
+          Plimit = 0.5;
+        else if (powerdata[1] < 18 && powerdata[1] > 15)
+          Plimit = 0.3;
+        else if (powerdata[1] < 15)
+          Plimit = 0.1;
+      }
+      else // 防止不接入supercap时，Plimit为0.1
+      {
+        Plimit = 1;
+      }
     }
     else
     {
@@ -712,6 +720,12 @@ static void level_judge()
         chassis_speed_max = CHASSIS_SPEED_MAX_10;
       else
         chassis_speed_max = CHASSIS_SPEED_MAX_10 + 3000;
+      break;
+    default:
+      if (!supercap_flag)
+        chassis_speed_max = CHASSIS_SPEED_MAX_1;
+      else
+        chassis_speed_max = CHASSIS_SPEED_MAX_1 + 3000;
       break;
     }
   }
